@@ -852,6 +852,45 @@ header img[alt="WWM Logo"] {
     filter: drop-shadow(0 2px 5px rgba(0,0,0,0.7));
 }
 
+.arrow-marker {
+    position: absolute;
+    width: 36px;
+    height: 20px;
+    z-index: 24;
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    transform: translateZ(0);
+    transform-origin: 0 50%;
+}
+.arrow-marker .arrow-shaft {
+    position: absolute;
+    left: 0;
+    right: 12px;
+    top: 50%;
+    height: 4px;
+    background: var(--arrow-color, #ff0000);
+    transform: translateY(-50%);
+    border-radius: 2px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.45);
+}
+.arrow-marker .arrow-head {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 0;
+    height: 0;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-left: 12px solid var(--arrow-color, #ff0000);
+    transform: translateY(-50%);
+}
+.arrow-marker .remove-btn {
+    right: -10px;
+    top: -10px;
+}
+
 /* Boss / tower / tree / goose image markers */
 .boss-marker,
 .tower-marker,
@@ -985,6 +1024,7 @@ header img[alt="WWM Logo"] {
 .btn-icon { font-size: 1.15rem; line-height: 1; color: var(--silk); }
 .toolbar-btn:hover .btn-icon { color: var(--gold-bright); }
 .toolbar-btn.active .btn-icon { color: var(--gold-bright); }
+.arrow-btn svg { fill: #fff; color: #fff; }
 /* undo / redo arrows — ensure strong contrast on dark toolbar */
 .undo-btn .btn-icon,
 .redo-btn .btn-icon { color: var(--gold-bright); font-size: 1.3rem; font-weight: 700; }
