@@ -346,6 +346,11 @@ header img[alt="WWM Logo"] {
     letter-spacing: 0.02em;
 }
 
+/* Hide the player counter next to the Guild Members header */
+#playerCount {
+    display: none;
+}
+
 .manage-players-btn {
     margin-left: auto;
     width: 34px; height: 34px;

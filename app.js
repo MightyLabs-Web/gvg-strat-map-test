@@ -42,7 +42,7 @@ const MAX_ENEMIES = 30;
 const ENEMIES_PER_CLICK = 5;
 const GROUP_MERGE_DISTANCE = 80;
 const AUTO_DELETE_DELAY = 10000;
-const TEAM_ORDER = ['Team 1', 'Team 2', 'Team 3', 'Team 4', 'Team 5', 'Team 6', 'FLEX', 'ATTACK', 'DEFENCE', 'TOP JUNGLE', 'BOT JUNGLE', 'GATE KEEPERS', 'BOSS TEAM', 'ASSASSINS'];
+const TEAM_ORDER = ['Team 1', 'Team 2', 'Team 3', 'Team 4', 'Team 5', 'Team 6'];
 // Add after TEAM_ORDER constant
 
 // Custom team name mappings
@@ -367,7 +367,7 @@ function loadDefaultMarkers() {
     });
 }
 
-function init() {
+async function init() {
     // Initialize canvas context after DOM is ready
     ctx = drawingCanvas.getContext('2d');
     
@@ -376,6 +376,9 @@ function init() {
     // This ensures the player list is always current from your Excel/data.js file
     // loadPlayersFromStorage(); // DISABLED - always use data.js
     
+    // Attempt to auto-load default roster CSV if present
+    await loadRosterFromDefaultFile();
+
     loadTeamNames();
     loadThemePreference();
     renderMemberList();
@@ -398,6 +401,66 @@ function init() {
     console.log(`📊 ${members.length} players loaded from data.js`);
 }
 
+// Try to load a default roster CSV file placed next to the site.
+// If found, it replaces the `members` list from data.js.
+async function loadRosterFromDefaultFile() {
+    try {
+        const resp = await fetch('GvG_Roster_Import.csv');
+        if (!resp.ok) {
+            console.log('No default roster file found (GvG_Roster_Import.csv)');
+            return;
+        }
+
+        const csv = await resp.text();
+        const lines = csv.split(/\r?\n/).filter(line => line.trim());
+        if (lines.length < 2) return;
+
+        const rawHeaders = lines[0].split(',').map(h => h.trim());
+        const headers = rawHeaders.map(h => h.toLowerCase());
+
+        // Map header names to indexes (flexible matching)
+        const idx = {};
+        headers.forEach((h, i) => {
+            if (h.includes('name') || h === 'player' || h === 'ign' || h === 'username') idx.name = i;
+            else if (h.includes('role') || h.includes('class') || h.includes('type')) idx.role = i;
+            else if (h.includes('team') || h.includes('squad') || h.includes('group')) idx.team = i;
+            else if (h.includes('weapon1') || h === 'w1' || h.includes('weapon 1')) idx.weapon1 = i;
+            else if (h.includes('weapon2') || h === 'w2' || h.includes('weapon 2')) idx.weapon2 = i;
+        });
+
+        if (idx.name == null || idx.role == null) {
+            console.log('Default CSV missing required Name/Role columns');
+            return;
+        }
+
+        let maxId = members.length > 0 ? Math.max(...members.map(m => m.id)) : 0;
+        const newPlayers = [];
+
+        for (let i = 1; i < lines.length; i++) {
+            const values = lines[i].split(',').map(v => v.trim());
+            if (!values[idx.name] || !values[idx.role]) continue;
+
+            newPlayers.push({
+                id: ++maxId,
+                name: values[idx.name],
+                role: values[idx.role],
+                team: (idx.team != null) ? (values[idx.team] || '') : '',
+                weapon1: (idx.weapon1 != null) ? (values[idx.weapon1] || '') : '',
+                weapon2: (idx.weapon2 != null) ? (values[idx.weapon2] || '') : ''
+            });
+        }
+
+        if (newPlayers.length > 0) {
+            // Replace members from data.js with CSV contents
+            members.length = 0;
+            members.push(...newPlayers);
+            console.log(`Loaded ${newPlayers.length} players from GvG_Roster_Import.csv`);
+        }
+    } catch (err) {
+        console.error('Error loading default roster CSV:', err);
+    }
+}
+
 // ============================================================================
 // MEMBER LIST RENDERING
 // ============================================================================
@@ -415,7 +478,13 @@ function renderMemberList() {
 
 // Render grouped view by team
 function renderGroupedView() {
-    TEAM_ORDER.forEach(teamName => {
+    // Build team list: start with prebuilt TEAM_ORDER (Team 1-6),
+    // then append any additional teams present in members (from CSV/import).
+    const teamsToRender = [...TEAM_ORDER];
+    const extraTeams = Array.from(new Set(members.map(m => m.team).filter(t => t && !teamsToRender.includes(t))));
+    teamsToRender.push(...extraTeams);
+
+    teamsToRender.forEach(teamName => {
         // Get all team members first (not filtered yet)
         const allTeamMembers = members.filter(m => m.team === teamName);
         
@@ -4561,7 +4630,7 @@ function openPlayerEditModal(playerId = null) {
         editPlayerId.value = '';
         editPlayerName.value = '';
         editPlayerRole.value = 'DPS';
-        editPlayerTeam.value = TEAM_ORDER[0]; // Default to first team (FLEX)
+        editPlayerTeam.value = ''; // Default to Unassigned
         editPlayerWeapon1.value = 'Nameless Sword';
         editPlayerWeapon2.value = 'Nameless Spear';
     }
