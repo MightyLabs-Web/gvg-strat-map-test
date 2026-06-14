@@ -3270,7 +3270,7 @@ function applyFilters(searchTerm = '') {
 // Clear all placements
 async function clearAllPlacements() {
     const totalPlaced = getTotalPlacedPlayers();
-    const totalMarkers = placedObjectives.length + placedBosses.length + placedBlueTowers.length + placedRedTowers.length + placedBlueTrees.length + placedRedTrees.length + placedBlueGeese.length + placedRedGeese.length + placedEnemies.length + placedArrows.length;
+    const totalMarkers = placedGroups.length + placedObjectives.length + placedBosses.length + placedBlueTowers.length + placedRedTowers.length + placedBlueTrees.length + placedRedTrees.length + placedBlueGeese.length + placedRedGeese.length + placedEnemies.length + placedArrows.length;
     if (totalPlaced === 0 && totalMarkers === 0 && drawingPaths.length === 0) return;
     
     const confirmed = await showConfirm(
