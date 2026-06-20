@@ -31,9 +31,9 @@
 
     /* Role colors (kept legible, reskinned to theme) */
     --role-tank:     #d98a3d;
-    --role-dps:      #cf4b3a;
+    --role-dps:      #0078d4;
+    --role-enemy:    #cf4b3a;
     --role-healer:   #6fb585;
-    --role-support:  #d8b24a;
 
     /* Functional */
     --danger:        #c0392b;
@@ -337,6 +337,19 @@ header img[alt="WWM Logo"] {
     width: 64px; height: 2px;
     background: linear-gradient(90deg, var(--vermilion-br), transparent);
 }
+
+.map-credit {
+    font-family: var(--font-body);
+    font-size: 1.18rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--silk-dim);
+    gap: 6px;
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+}
+
 #playerCount, #placedCount {
     font-family: var(--font-body);
     font-size: 0.95rem;
@@ -346,8 +359,8 @@ header img[alt="WWM Logo"] {
     letter-spacing: 0.02em;
 }
 
-/* Hide the player counter next to the Guild Members header */
-#playerCount {
+/* Hide the removed Battle Map placed count */
+#placedCount {
     display: none;
 }
 
@@ -368,31 +381,6 @@ header img[alt="WWM Logo"] {
     transform: rotate(35deg);
     box-shadow: 0 0 14px rgba(201,162,75,0.3);
 }
-
-/* Enemy summon button — vermilion war banner */
-.enemy-section { margin-bottom: 14px; }
-.add-enemies-btn {
-    width: 100%;
-    padding: 12px;
-    font-family: var(--font-display);
-    font-size: 0.86rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: #f6e7d8;
-    background: linear-gradient(180deg, #8e2f23, #66201a);
-    border: 1px solid #b6402e;
-    border-radius: 3px;
-    cursor: pointer;
-    transition: all .2s;
-    box-shadow: 0 6px 16px rgba(120,30,22,0.4);
-}
-.add-enemies-btn:hover {
-    background: linear-gradient(180deg, #a8392a, #7a2620);
-    box-shadow: 0 8px 22px rgba(180,60,46,0.5);
-    transform: translateY(-2px);
-}
-#enemyCount { color: var(--gold-bright); }
 
 /* Search */
 .search-box { margin-bottom: 14px; }
@@ -622,9 +610,9 @@ header img[alt="WWM Logo"] {
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.25);
 }
 .role-badge.Tank,   .role-badge-small.role-Tank   { background: var(--role-tank); }
-.role-badge.DPS,    .role-badge-small.role-DPS     { background: var(--role-dps); color:#fff; }
+.role-badge.DPS,    .role-badge-small.role-DPS     { background: var(--role-dps); color:#000; }
+.role-badge.Enemy,  .role-badge-small.role-Enemy   { background: var(--role-enemy); color:#000; }
 .role-badge.Healer, .role-badge-small.role-Healer  { background: var(--role-healer); }
-.role-badge.Support,.role-badge-small.role-Support { background: var(--role-support); }
 
 .no-players {
     text-align: center;
@@ -734,8 +722,8 @@ header img[alt="WWM Logo"] {
 }
 .member-marker.role-Tank::after   { background: var(--role-tank); }
 .member-marker.role-DPS::after    { background: var(--role-dps); }
+.member-marker.role-Enemy::after  { background: var(--role-enemy); }
 .member-marker.role-Healer::after { background: var(--role-healer); }
-.member-marker.role-Support::after{ background: var(--role-support); }
 
 /* Role radius ring (toggled via .map-area.show-role-radius) */
 .role-radius { display: none; }
@@ -757,12 +745,12 @@ header img[alt="WWM Logo"] {
 }
 /* member role colors */
 .map-area.show-role-radius .member-marker.role-Tank .role-radius   { background: rgba(217,138,61,0.34); box-shadow: inset 0 0 0 2px rgba(217,138,61,0.8); }
-.map-area.show-role-radius .member-marker.role-DPS .role-radius    { background: rgba(207,75,58,0.34);  box-shadow: inset 0 0 0 2px rgba(207,75,58,0.8); }
+.map-area.show-role-radius .member-marker.role-DPS .role-radius    { background: rgba(0,120,212,0.34);  box-shadow: inset 0 0 0 2px rgba(0,120,212,0.8); }
+.map-area.show-role-radius .member-marker.role-Enemy .role-radius  { background: rgba(207,75,58,0.34);  box-shadow: inset 0 0 0 2px rgba(207,75,58,0.8); }
 .map-area.show-role-radius .member-marker.role-Healer .role-radius { background: rgba(111,181,133,0.34);box-shadow: inset 0 0 0 2px rgba(111,181,133,0.85); }
-.map-area.show-role-radius .member-marker.role-Support .role-radius{ background: rgba(216,178,74,0.34); box-shadow: inset 0 0 0 2px rgba(216,178,74,0.85); }
 /* objective role-image markers */
 .map-area.show-role-radius .objective-marker.objective-tank .role-radius   { background: rgba(217,138,61,0.34);  box-shadow: inset 0 0 0 2px rgba(217,138,61,0.8); }
-.map-area.show-role-radius .objective-marker.objective-dps .role-radius    { background: rgba(207,75,58,0.34);   box-shadow: inset 0 0 0 2px rgba(207,75,58,0.8); }
+.map-area.show-role-radius .objective-marker.objective-dps .role-radius    { background: rgba(0,120,212,0.34);   box-shadow: inset 0 0 0 2px rgba(0,120,212,0.8); }
 .map-area.show-role-radius .objective-marker.objective-healer .role-radius { background: rgba(111,181,133,0.34); box-shadow: inset 0 0 0 2px rgba(111,181,133,0.85); }
 .map-area.show-role-radius .objective-marker .role-radius                  { background: rgba(201,162,75,0.30);  box-shadow: inset 0 0 0 2px rgba(201,162,75,0.8); }
 
@@ -985,8 +973,8 @@ header img[alt="WWM Logo"] {
 .role-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
 .role-dot.role-Tank { background: var(--role-tank); }
 .role-dot.role-DPS { background: var(--role-dps); }
+.role-dot.role-Enemy { background: var(--role-enemy); }
 .role-dot.role-Healer { background: var(--role-healer); }
-.role-dot.role-Support { background: var(--role-support); }
 
 /* =====================================================================
    BOTTOM TOOLBAR — armoury rack
@@ -1192,8 +1180,28 @@ header img[alt="WWM Logo"] {
     line-height: 1.6;
 }
 .modal-body h3 { font-family: var(--font-display); color: var(--gold); margin: 16px 0 8px; }
-.modal-body h4 { font-family: var(--font-display); color: var(--gold-bright); }
+..modal-body h4 { font-family: var(--font-display); color: var(--gold-bright); }
 .modal-body p { margin-bottom: 10px; }
+.confirm-checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.confirm-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    color: var(--silk);
+}
+.confirm-checkbox-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--gold);
+}
 .modal-body code {
     font-family: 'Courier New', monospace;
     background: var(--ink-void);

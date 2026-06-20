@@ -37,12 +37,12 @@ let drawingColor = '#ff0000'; // Default red color
 let activeSplitGroupId = null;
 
 // Constants
-const MAX_PLAYERS = 30;
+const MAX_PLAYERS = Infinity;
 const MAX_ENEMIES = 30;
 const ENEMIES_PER_CLICK = 5;
 const GROUP_MERGE_DISTANCE = 80;
 const AUTO_DELETE_DELAY = 10000;
-const TEAM_ORDER = ['Team 1', 'Team 2', 'Team 3', 'Team 4', 'Team 5', 'Team 6'];
+const TEAM_ORDER = ['Team 1', 'Team 2', 'Team 3', 'Team 4', 'Team 5', 'Team 6', 'Team 7'];
 // Add after TEAM_ORDER constant
 
 // Custom team name mappings
@@ -128,7 +128,6 @@ const exportBtn = document.getElementById('exportBtn');
 const importBtn = document.getElementById('importBtn');
 const importFileInput = document.getElementById('importFileInput');
 const playerCount = document.getElementById('playerCount');
-const placedCount = document.getElementById('placedCount');
 const addObjectiveBtn = document.getElementById('addObjectiveBtn');
 const addHealerObjectiveBtn = document.getElementById('addHealerObjectiveBtn');
 const addTankObjectiveBtn = document.getElementById('addTankObjectiveBtn');
@@ -151,8 +150,6 @@ const radiusToggle = document.getElementById('radiusToggle');
 const drawColorPicker = document.getElementById('drawColorPicker');
 const drawingCanvas = document.getElementById('drawingCanvas');
 let ctx; // Initialize in init() after DOM loads
-const addEnemiesBtn = document.getElementById('addEnemiesBtn');
-const enemyCount = document.getElementById('enemyCount');
 const managePlayersBtn = document.getElementById('managePlayersBtn');
 const playerManagementModal = document.getElementById('playerManagementModal');
 const playerEditModal = document.getElementById('playerEditModal');
@@ -170,6 +167,8 @@ const cancelEditBtn = document.getElementById('cancelEditBtn');
 const confirmModal = document.getElementById('confirmModal');
 const confirmModalTitle = document.getElementById('confirmModalTitle');
 const confirmModalMessage = document.getElementById('confirmModalMessage');
+const confirmDontWarnWrapper = document.getElementById('confirmDontWarnWrapper');
+const confirmDontWarnCheckbox = document.getElementById('confirmDontWarnCheckbox');
 const confirmOkBtn = document.getElementById('confirmOkBtn');
 const confirmCancelBtn = document.getElementById('confirmCancelBtn');
 const promptModal = document.getElementById('promptModal');
@@ -185,13 +184,26 @@ const closeHotkeyModalBtn = document.getElementById('closeHotkeyModalBtn');
 // CUSTOM CONFIRM DIALOG
 // ============================================================================
 
-function showConfirm(title, message) {
+let suppressClearAllPlacementsConfirm = false;
+
+function showConfirm(title, message, options = {}) {
     return new Promise((resolve) => {
         confirmModalTitle.textContent = title;
         confirmModalMessage.textContent = message;
         confirmModal.style.display = 'flex';
         
+        if (options.showDontWarnCheckbox) {
+            confirmDontWarnWrapper.style.display = 'block';
+            confirmDontWarnCheckbox.checked = false;
+        } else {
+            confirmDontWarnWrapper.style.display = 'none';
+            confirmDontWarnCheckbox.checked = false;
+        }
+        
         const handleOk = () => {
+            if (options.showDontWarnCheckbox && confirmDontWarnCheckbox.checked) {
+                suppressClearAllPlacementsConfirm = true;
+            }
             cleanup();
             resolve(true);
         };
@@ -203,6 +215,8 @@ function showConfirm(title, message) {
         
         const cleanup = () => {
             confirmModal.style.display = 'none';
+            confirmDontWarnWrapper.style.display = 'none';
+            confirmDontWarnCheckbox.checked = false;
             confirmOkBtn.removeEventListener('click', handleOk);
             confirmCancelBtn.removeEventListener('click', handleCancel);
         };
@@ -747,7 +761,6 @@ function setupEventListeners() {
     });
     
     // Enemy button
-    addEnemiesBtn.addEventListener('click', addEnemies);
     
     // Clear map button
     clearMapBtn.addEventListener('click', clearAllPlacements);
@@ -1078,13 +1091,7 @@ function handleDrop(e) {
             alert(`${member.name} is already placed on the map!`);
             return;
         }
-        
-        // Check max players limit
-        if (getTotalPlacedPlayers() >= MAX_PLAYERS) {
-            alert(`Maximum ${MAX_PLAYERS} players allowed on the map!`);
-            return;
-        }
-        
+
         placeMemberOnMap(member, x, y);
     } else {
         // Legacy support - assume it's a member
@@ -1097,12 +1104,7 @@ function handleDrop(e) {
             alert(`${member.name} is already placed on the map!`);
             return;
         }
-        
-        if (getTotalPlacedPlayers() >= MAX_PLAYERS) {
-            alert(`Maximum ${MAX_PLAYERS} players allowed on the map!`);
-            return;
-        }
-        
+
         // Place the legacy member drop centered at the cursor
         placeMemberOnMap(member, x, y);
     }
@@ -1166,10 +1168,7 @@ function placeTeamGroupOnMap(teamName, x, y) {
     // If there are no available members, we still create a group marker with the team name
     
     // Check max players limit only if there are members to add
-    if (teamMembers.length > 0 && getTotalPlacedPlayers() + teamMembers.length > MAX_PLAYERS) {
-        alert(`Cannot place ${teamName}: would exceed maximum ${MAX_PLAYERS} players!`);
-        return;
-    }
+
     
     // MERGE DISABLED - Always create new group
     // const nearbyGroup = findNearbyGroup(x, y);
@@ -1271,7 +1270,7 @@ function updateGroupMarker(marker, group) {
 
 // Count roles in a group
 function countRoles(memberIds) {
-    const count = { Tank: 0, DPS: 0, Healer: 0, Support: 0 };
+    const count = { Tank: 0, DPS: 0, Enemy: 0, Healer: 0 };
     memberIds.forEach(id => {
         const member = members.find(m => m.id === id);
         if (member && count[member.role] !== undefined) {
@@ -2403,15 +2402,13 @@ function removeEnemyGroup(enemyGroupId) {
 
 // Update enemy count display
 function updateEnemyCount() {
-    const totalEnemies = placedEnemies.length * ENEMIES_PER_CLICK;
-    enemyCount.textContent = totalEnemies;
-    
-    // Disable button if max reached
-    if (placedEnemies.length >= MAX_ENEMIES / ENEMIES_PER_CLICK) {
-        addEnemiesBtn.disabled = true;
-    } else {
-        addEnemiesBtn.disabled = false;
+    const enemyCountElem = document.getElementById('enemyCount');
+    if (!enemyCountElem) {
+        return;
     }
+
+    const totalEnemies = placedEnemies.length * ENEMIES_PER_CLICK;
+    enemyCountElem.textContent = totalEnemies;
 }
 
 // Initialize drawing canvas
@@ -3273,10 +3270,13 @@ async function clearAllPlacements() {
     const totalMarkers = placedGroups.length + placedObjectives.length + placedBosses.length + placedBlueTowers.length + placedRedTowers.length + placedBlueTrees.length + placedRedTrees.length + placedBlueGeese.length + placedRedGeese.length + placedEnemies.length + placedArrows.length;
     if (totalPlaced === 0 && totalMarkers === 0 && drawingPaths.length === 0) return;
     
-    const confirmed = await showConfirm(
-        'Clear All Placements',
-        'Are you sure you want to remove all players and markers from the map?'
-    );
+    const confirmed = suppressClearAllPlacementsConfirm
+        ? true
+        : await showConfirm(
+            'Clear All Placements',
+            'Are you sure you want to remove all players and markers from the map?',
+            { showDontWarnCheckbox: true }
+        );
     
     if (confirmed) {
         const markers = mapArea.querySelectorAll('.member-marker, .group-marker, .objective-marker, .boss-marker, .tower-marker, .tree-marker, .goose-marker, .enemy-marker, .arrow-marker');
@@ -3310,9 +3310,7 @@ async function clearAllPlacements() {
 
 // Update player counts
 function updateCounts() {
-    playerCount.textContent = `(${members.length}/${MAX_PLAYERS})`;
-    const totalPlaced = getTotalPlacedPlayers();
-    placedCount.textContent = `(${totalPlaced}/${MAX_PLAYERS} Placed)`;
+    playerCount.textContent = `(${members.length})`;
 }
 
 // Update placeholder visibility
@@ -3348,7 +3346,7 @@ function renderMap() {
         marker.style.top = `${placement.y - 12}px`;
         marker.draggable = true;
         
-        const roleCount = { Tank: 0, DPS: 0, Healer: 0, Support: 0 };
+        const roleCount = { Tank: 0, DPS: 0, Enemy: 0, Healer: 0 };
         roleCount[member.role] = 1;
         
         marker.innerHTML = `
@@ -3356,8 +3354,8 @@ function renderMap() {
                 <div class="tooltip-roles">
                     ${roleCount.Tank > 0 ? `<div class="role-item"><span class="role-dot role-Tank"></span> ${roleCount.Tank} Tank</div>` : ''}
                     ${roleCount.DPS > 0 ? `<div class="role-item"><span class="role-dot role-DPS"></span> ${roleCount.DPS} DPS</div>` : ''}
+                    ${roleCount.Enemy > 0 ? `<div class="role-item"><span class="role-dot role-Enemy"></span> ${roleCount.Enemy} Enemy</div>` : ''}
                     ${roleCount.Healer > 0 ? `<div class="role-item"><span class="role-dot role-Healer"></span> ${roleCount.Healer} Healer</div>` : ''}
-                    ${roleCount.Support > 0 ? `<div class="role-item"><span class="role-dot role-Support"></span> ${roleCount.Support} Support</div>` : ''}
                 </div>
             </div>
             <button class="remove-btn" onclick="removeMemberMarker(${placement.memberId})">×</button>
@@ -4375,7 +4373,7 @@ function loadSavedPositions() {
                 placedMembers = [];
                 data.forEach(placement => {
                     const member = members.find(m => m.id === placement.memberId);
-                    if (member && getTotalPlacedPlayers() < MAX_PLAYERS) {
+                    if (member) {
                         placeMemberOnMap(member, placement.x, placement.y);
                     }
                 });
@@ -4393,7 +4391,7 @@ function loadSavedPositions() {
                 if (data.members) {
                     data.members.forEach(placement => {
                         const member = members.find(m => m.id === placement.memberId);
-                        if (member && getTotalPlacedPlayers() < MAX_PLAYERS) {
+                        if (member) {
                             placeMemberOnMap(member, placement.x, placement.y);
                         }
                     });
@@ -4402,10 +4400,8 @@ function loadSavedPositions() {
                 // Load groups
                 if (data.groups) {
                     data.groups.forEach(groupData => {
-                        if (getTotalPlacedPlayers() + groupData.memberIds.length <= MAX_PLAYERS) {
-                            placedGroups.push(groupData);
-                            renderGroupMarker(groupData);
-                        }
+                        placedGroups.push(groupData);
+                        renderGroupMarker(groupData);
                     });
                 }
                 
@@ -4681,11 +4677,6 @@ function handlePlayerFormSubmit(e) {
         }
     } else {
         // Add new player
-        if (members.length >= MAX_PLAYERS) {
-            alert(`Maximum ${MAX_PLAYERS} players allowed!`);
-            return;
-        }
-        
         const newId = members.length > 0 ? Math.max(...members.map(m => m.id)) + 1 : 1;
         const newPlayer = {
             id: newId,
@@ -4866,11 +4857,6 @@ function migrateTeamNames(members) {
         // Migrate team names
         if (teamNameMap[member.team]) {
             updatedMember.team = teamNameMap[member.team];
-        }
-        
-        // Migrate Support role to DPS
-        if (member.role === 'Support') {
-            updatedMember.role = 'DPS';
         }
         
         return updatedMember;
