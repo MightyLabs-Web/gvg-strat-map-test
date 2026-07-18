@@ -42,7 +42,7 @@ const MAX_ENEMIES = 30;
 const ENEMIES_PER_CLICK = 5;
 const GROUP_MERGE_DISTANCE = 80;
 const AUTO_DELETE_DELAY = 10000;
-const TEAM_ORDER = ['Team 1', 'Team 2', 'Team 3', 'Team 4', 'Team 5', 'Team 6', 'Team 7'];
+const TEAM_ORDER = ['Team 1', 'Team 2', 'Team 3', 'Team 4', 'Team 5', 'Team 6', 'Team 7 MID/TOP', 'Team 7 MID/BOT'];
 // Add after TEAM_ORDER constant
 
 // Custom team name mappings
@@ -717,6 +717,24 @@ function setupEventListeners() {
     mapArea.addEventListener('mousemove', handleMapMouseMove);
     mapArea.addEventListener('mouseup', handleMapMouseUp);
     mapArea.addEventListener('mouseleave', handleMapMouseLeave);
+    
+    // Map toggle functionality
+    const mapToggle = document.getElementById('mapToggle');
+    if (mapToggle) {
+        mapToggle.addEventListener('change', function() {
+            const mapImage = this.checked ? 'images/map2.png' : 'images/map.png';
+            mapArea.style.backgroundImage = `url('${mapImage}')`;
+            // Save preference to localStorage
+            localStorage.setItem('mightylabs-gvg-map-preference', this.checked ? 'map2' : 'map1');
+        });
+        
+        // Load saved preference
+        const savedMapPreference = localStorage.getItem('mightylabs-gvg-map-preference');
+        if (savedMapPreference === 'map2') {
+            mapToggle.checked = true;
+            mapArea.style.backgroundImage = "url('images/map2.png')";
+        }
+    }
     
     // Search functionality
     searchInput.addEventListener('input', handleSearch);
