@@ -823,6 +823,10 @@ function setupEventListeners() {
     addHealerObjectiveBtn.addEventListener('click', () => toggleRoleObjectiveMode('healer', addHealerObjectiveBtn));
     addTankObjectiveBtn.addEventListener('click', () => toggleRoleObjectiveMode('tank', addTankObjectiveBtn));
     addDPSObjectiveBtn.addEventListener('click', () => toggleRoleObjectiveMode('dps', addDPSObjectiveBtn));
+    addBlueTreeBtn.addEventListener('click', toggleBlueTreeMode);
+    addRedTreeBtn.addEventListener('click', toggleRedTreeMode);
+    addBlueGooseBtn.addEventListener('click', toggleBlueGooseMode);
+    addRedGooseBtn.addEventListener('click', toggleRedGooseMode);
     if (addNoteBtn) {
         addNoteBtn.addEventListener('click', toggleNoteMode);
     }
@@ -842,6 +846,7 @@ function setupEventListeners() {
     undoDrawBtn.addEventListener('click', undoDrawing);
     redoDrawBtn.addEventListener('click', redoDrawing);
     if (radiusToggle) {
+        mapArea.classList.toggle('show-role-radius', radiusToggle.checked);
         radiusToggle.addEventListener('change', handleRadiusToggle);
     }
     drawColorPicker.addEventListener('input', (e) => {
@@ -1619,6 +1624,26 @@ function clearLegacyToolButtons() {
     });
 }
 
+function clearObjectiveMarkerButtons(activeButton) {
+    const markerButtons = [
+        addObjectiveBtn,
+        addHealerObjectiveBtn,
+        addTankObjectiveBtn,
+        addDPSObjectiveBtn,
+        addBossBtn,
+        addBlueTowerBtn,
+        addRedTowerBtn,
+        addBlueTreeBtn,
+        addRedTreeBtn,
+        addBlueGooseBtn,
+        addRedGooseBtn
+    ];
+
+    markerButtons.forEach((button) => {
+        if (button && button !== activeButton) button.classList.remove('active');
+    });
+}
+
 function deactivateObjectivePlacement() {
     placingMode = null;
     selectedObjectiveType = null;
@@ -1727,6 +1752,7 @@ function toggleRoleObjectiveMode(type, button) {
     clearLegacyToolButtons();
     if (drawBtn) drawBtn.classList.remove('active');
     resetRoleObjectiveButtons();
+    clearObjectiveMarkerButtons(button);
     if (button) button.classList.add('active');
     mapArea.classList.remove('drawing-mode');
     mapArea.classList.add('placing-mode');
@@ -1830,6 +1856,7 @@ function toggleBlueTreeMode() {
         // Activate blue tree mode
         placingMode = 'blue-tree';
         drawingMode = false;
+        clearObjectiveMarkerButtons(addBlueTreeBtn);
         addBlueTreeBtn.classList.add('active');
         arrowBtn.classList.remove('active');
         addObjectiveBtn.classList.remove('active');
@@ -1860,6 +1887,7 @@ function toggleRedTreeMode() {
         // Activate red tree mode
         placingMode = 'red-tree';
         drawingMode = false;
+        clearObjectiveMarkerButtons(addRedTreeBtn);
         addRedTreeBtn.classList.add('active');
         arrowBtn.classList.remove('active');
         addObjectiveBtn.classList.remove('active');
@@ -2587,6 +2615,7 @@ function toggleBlueGooseMode() {
     } else {
         placingMode = 'blue-goose';
         drawingMode = false;
+        clearObjectiveMarkerButtons(addBlueGooseBtn);
         addBlueGooseBtn.classList.add('active');
         addObjectiveBtn.classList.remove('active');
         addBossBtn.classList.remove('active');
@@ -2612,6 +2641,7 @@ function toggleRedGooseMode() {
     } else {
         placingMode = 'red-goose';
         drawingMode = false;
+        clearObjectiveMarkerButtons(addRedGooseBtn);
         addRedGooseBtn.classList.add('active');
         addObjectiveBtn.classList.remove('active');
         addBossBtn.classList.remove('active');
