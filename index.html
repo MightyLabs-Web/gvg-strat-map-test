@@ -23,7 +23,7 @@
     <link rel="preload" as="image" href="images/25%20minutes.png">
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="strategy-app">
     <div class="desktop-only-notice" role="status">
         <span class="desktop-only-kicker">GUILD WAR STRATEGY</span>
         <h1>Built for desktop</h1>
@@ -80,7 +80,7 @@
                 </a>
                 <button id="changelogBtn" class="nav-btn">
                     <span class="nav-icon">📋</span>
-                    <span class="nav-text">v2.4</span>
+                    <span class="nav-text">v2.5</span>
                 </button>
             </nav>
             
@@ -523,7 +523,7 @@
                     <h3 class="howto-title">🚀 Quick Start</h3>
                     <ol class="howto-list">
                         <li>Load the page: your guild roster appears automatically in the roster panel.</li>
-                        <li>Drag a player from the left panel onto the map to place them.</li>
+                        <li>Drag a player from the roster panel onto the map to place them.</li>
                         <li>Right-click an empty map area and choose a marker from the radial wheel to place it at that location.</li>
                         <li>Use the bottom utility strip for drawing, timer, undo, and role-radius controls.</li>
                         <li>When happy with the strategy, click <strong>📥 Export</strong> to save a JSON file.</li>
@@ -543,13 +543,13 @@
                         <div class="howto-row"><span class="howto-icon">⌨️</span><div><strong>Hot Keys</strong>: Lists all keyboard shortcuts.</div></div>
                         <div class="howto-row"><span class="howto-icon">⚠️</span><div><strong>Known Issues</strong>: Important notes about browser zoom and best practices.</div></div>
                         <div class="howto-row"><span class="howto-icon">📖</span><div><strong>How To Use</strong>: This guide!</div></div>
-                            <div class="howto-row"><span class="howto-icon">📋</span><div><strong id="howtoVersionLabel">v2.4</strong>: Full patch history and changelog.</div></div>
+                            <div class="howto-row"><span class="howto-icon">📋</span><div><strong id="howtoVersionLabel">v2.5</strong>: Full patch history and changelog.</div></div>
                     </div>
                 </div>
 
                 <!-- Player Panel -->
                 <div class="howto-section">
-                    <h3 class="howto-title">👥 Left Panel: Player Roster</h3>
+                    <h3 class="howto-title">👥 Roster Panel</h3>
                     <ul class="howto-list">
                         <li><strong>Search bar</strong>: Filter players by name as you type.</li>
                         <li><strong>Grouped by Team / All Players</strong>: Toggle between viewing players grouped into their teams or in a flat list.</li>
@@ -650,8 +650,18 @@ YanZiniang,DPS,FLEX,Nameless Sword,Nameless Spear</pre>
             </div>
             <div class="modal-body" style="max-height: 70vh; overflow-y: auto; text-align: left;">
                 <div class="version-current">
-                    <h3>🎯 Latest Patch: 2.4</h3>
-                    <p class="version-date">Released: September 2026</p>
+                    <h3>🎯 Latest Patch: 2.5</h3>
+                    <p class="version-date">Released: November 2026</p>
+                </div>
+
+                <div class="changelog-section">
+                    <h4>Patch 2.5 - Desktop Map Workspace</h4>
+                    <ul>
+                        <li>🖱️ <strong>Radial Marker Wheel:</strong> Right-click an open map area to place a marker at the pointer. Objectives opens a second wheel for the available objective types.</li>
+                        <li>🎨 <strong>Refined Panels:</strong> Added subtle transparency to the map and roster panels while keeping the map fully visible.</li>
+                        <li>🧹 <strong>Focused Roster:</strong> Empty teams now start collapsed so assigned players are easier to scan.</li>
+                        <li>🖥️ <strong>Desktop Layout:</strong> Tightened the header and added a desktop message for narrow screens.</li>
+                    </ul>
                 </div>
 
                 <div class="changelog-section">

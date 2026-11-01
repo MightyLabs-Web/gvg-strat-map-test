@@ -2155,9 +2155,9 @@ header img[alt="WWM Logo"] {
     .member-list { max-height: 460px; }
 }
 @media (max-width: 760px) {
-    body { display: grid; min-height: 100vh; padding: 22px; place-items: center; background-attachment: scroll; }
-    .container { display: none; }
-    .desktop-only-notice {
+    body.strategy-app { display: grid; min-height: 100vh; padding: 22px; place-items: center; background-attachment: scroll; }
+    .strategy-app .container { display: none; }
+    .strategy-app .desktop-only-notice {
         position: relative;
         z-index: 2;
         display: block;
