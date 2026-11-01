@@ -158,7 +158,6 @@ const drawBtn = document.getElementById('drawBtn');
 const arrowBtn = document.getElementById('arrowBtn');
 const clearDrawBtn = document.getElementById('clearDrawBtn');
 const undoDrawBtn = document.getElementById('undoDrawBtn');
-const redoDrawBtn = document.getElementById('redoDrawBtn');
 const autoDeleteToggle = document.getElementById('autoDeleteToggle');
 const radiusToggle = document.getElementById('radiusToggle');
 const drawColorPicker = document.getElementById('drawColorPicker');
@@ -844,7 +843,6 @@ function setupEventListeners() {
     arrowBtn.addEventListener('click', toggleArrowMode);
     clearDrawBtn.addEventListener('click', clearAllDrawings);
     undoDrawBtn.addEventListener('click', undoDrawing);
-    redoDrawBtn.addEventListener('click', redoDrawing);
     if (radiusToggle) {
         mapArea.classList.toggle('show-role-radius', radiusToggle.checked);
         radiusToggle.addEventListener('change', handleRadiusToggle);
@@ -3421,14 +3419,12 @@ function redoDrawing() {
     updateUndoRedoButtons();
 }
 
-// Update undo/redo button states
+// Update undo button state
 function updateUndoRedoButtons() {
     if (autoDeleteDrawings) {
         undoDrawBtn.disabled = true;
-        redoDrawBtn.disabled = true;
     } else {
         undoDrawBtn.disabled = drawingHistory.length === 0;
-        redoDrawBtn.disabled = drawingRedoStack.length === 0;
     }
 }
 
